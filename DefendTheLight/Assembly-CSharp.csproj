@@ -45,14 +45,19 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\Enemy.cs" />
-     <Compile Include="Assets\Game.cs" />
-     <Compile Include="Assets\GameControl.cs" />
-     <Compile Include="Assets\GameGrid.cs" />
-     <Compile Include="Assets\Node.cs" />
-     <Compile Include="Assets\Projectile.cs" />
-     <Compile Include="Assets\Tower.cs" />
-     <Compile Include="Assets\TowerButton.cs" />
+     <Compile Include="Assets\Scripts\Enemy.cs" />
+     <Compile Include="Assets\Scripts\Game.cs" />
+     <Compile Include="Assets\Scripts\GameControl.cs" />
+     <Compile Include="Assets\Scripts\GameGrid.cs" />
+     <Compile Include="Assets\Scripts\Node.cs" />
+     <Compile Include="Assets\Scripts\Projectile.cs" />
+     <Compile Include="Assets\Scripts\SFX_Destroy.cs" />
+     <Compile Include="Assets\Scripts\TowerButton.cs" />
+     <Compile Include="Assets\Scripts\Towers\AreaTower.cs" />
+     <Compile Include="Assets\Scripts\Towers\DefenseTower.cs" />
+     <Compile Include="Assets\Scripts\Towers\OldTower.cs" />
+     <Compile Include="Assets\Scripts\Towers\ProjectileTower.cs" />
+     <Compile Include="Assets\Scripts\Towers\Tower.cs" />
  <Reference Include="UnityEngine.UI">
  <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>
