@@ -63,6 +63,7 @@
      <Compile Include="Assets\Scripts\Towers\OldTower.cs" />
      <Compile Include="Assets\Scripts\Towers\ProjectileTower.cs" />
      <Compile Include="Assets\Scripts\Towers\Tower.cs" />
+     <Compile Include="Assets\Scripts\WaveControl.cs" />
      <Compile Include="Assets\SpeedBtn.cs" />
  <Reference Include="UnityEngine.UI">
  <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>

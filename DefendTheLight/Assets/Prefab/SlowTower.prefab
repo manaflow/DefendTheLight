@@ -41,9 +41,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1ededfb67082f754eb677add08cf3110, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ward: 1
+  ward: 99
   heath: 10
   range: 2.5
+  SFX_Object: {fileID: 0}
   effect: 1
   duration: 1
   amount: 0.5

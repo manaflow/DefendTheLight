@@ -6,14 +6,18 @@ using UnityEngine.EventSystems;
 
 public class GameControl : MonoBehaviour
 {
-
-    public GameObject enemyPref;
-    public GameObject[] enemyPrefs;
     public GameObject selectPref;
     public GameObject dragPref;
+    public GameObject waveObjPref;
+    public GameObject projectilePref;
     public Text moneyText;
     public Image UI_TowerMenu;
     public Sprite rangeSprite;
+    public int seed = 0;
+    bool start = false;
+
+    [HideInInspector]
+    public WaveControl waveControl; 
 
     GameObject selector;
     
@@ -34,12 +38,13 @@ public class GameControl : MonoBehaviour
 	// Use this for initialization
 	void Start ()
     {
+        Game.control = this;
         gameGrid = new GameGrid();
         Game.grid = gameGrid;
         Game.enemies = new List<Enemy>();
 
         // Start with menu offscreen
-        UI_TowerMenu.rectTransform.position = new Vector3(-Screen.width / 2, Screen.height / 2, 0);
+       // UI_TowerMenu.rectTransform.position = new Vector3(-Screen.width / 2, Screen.height / 2, 0);
         
     }
 
@@ -54,23 +59,18 @@ public class GameControl : MonoBehaviour
 	// Update is called once per frame
 	void Update ()
     {
-
+        
         moneyText.text = "$" + Game.money;
       
-        // Spawn enemy for testing
-        if (Input.GetKeyDown(KeyCode.Alpha1))
+        // Start Game Press Space
+        if(!start && Input.GetKeyDown(KeyCode.Space) && waveControl == null)
         {
-            Game.enemies.Add(GameObject.Instantiate(enemyPrefs[0].GetComponent<Enemy>()));
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha2))
-        {
-            Game.enemies.Add(GameObject.Instantiate(enemyPrefs[1].GetComponent<Enemy>()));
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha3))
-        {
-            Game.enemies.Add(GameObject.Instantiate(enemyPrefs[2].GetComponent<Enemy>()));
-        }
-
+            GameObject waveObj = GameObject.Instantiate(waveObjPref);
+            waveControl = waveObj.GetComponent<WaveControl>();
+            waveControl.Init();     
+            start = true;
+        }      
+     
         // 3 Types of behavior. Clicking, Dragging, Release Drag
 
         if(Input.GetMouseButtonDown(0)) // Click
@@ -109,7 +109,8 @@ public class GameControl : MonoBehaviour
                 if(Game.money >= towerBtn.cost) // make sure u have enough money
                 dragObject = GameObject.Instantiate(dragPref);
                 DragControl dc = dragObject.GetComponent<DragControl>();
-                dc.obj = towerBtn.Tower;                
+                //dc.obj = towerBtn.Tower;     
+                dc.buttonRef = towerBtn;           
                 dc.sprite = towerBtn.Tower.GetComponent<SpriteRenderer>().sprite;
                 isTower = true;
                 dc.cost = towerBtn.cost;
@@ -122,7 +123,8 @@ public class GameControl : MonoBehaviour
                 {
                     dragObject = GameObject.Instantiate(dragPref);
                     DragControl dc = dragObject.GetComponent<DragControl>();
-                    dc.obj = abilityBtn.abilityPref;
+                    //dc.obj = abilityBtn.abilityPref;
+                    dc.abilityRef = abilityBtn;
                     dc.sprite = abilityBtn.abilityPref.GetComponent<SpriteRenderer>().sprite;
                     isTower = false;
                     dc.cost = abilityBtn.cost;
@@ -197,22 +199,28 @@ public class GameControl : MonoBehaviour
                     {
 
                         DragControl dc = dragObject.GetComponent<DragControl>();
-                        GameObject tower = GameObject.Instantiate(dc.obj);
-                        tower.transform.position = new Vector3(j * 0.6f + 0.3f, i * 0.6f + 0.3f, -1);
-                        gameGrid.SetGrid(i, j, tower);
-                        Game.money -= dc.cost;
-                        Destroy(dragObject);
-                        return;
+                        if (dc.buttonRef != null)
+                        {
+                            GameObject tower = GameObject.Instantiate(dc.buttonRef.Tower);
+                            tower.transform.position = new Vector3(j * 0.6f + 0.3f, i * 0.6f + 0.3f, -1);
+                            gameGrid.SetGrid(i, j, tower);
+                            Game.money -= dc.cost;
+                            Destroy(dragObject);
+                            return;
+                        }
                     }
                 }
                 else
                 {
                     DragControl dc = dragObject.GetComponent<DragControl>();
-                    GameObject abilityObject = GameObject.Instantiate(dc.obj);
-                    abilityObject.transform.position = new Vector3(j * 0.6f + 0.3f, i * 0.6f + 0.3f, -3);
-                    Game.energy -= dc.cost;
-                    Destroy(dragObject);
-                    return;
+                    if (dc.abilityRef != null)
+                    {
+                        GameObject abilityObject = GameObject.Instantiate(dc.abilityRef.abilityPref);
+                        abilityObject.transform.position = new Vector3(j * 0.6f + 0.3f, i * 0.6f + 0.3f, -3);
+                        Game.energy -= dc.cost;
+                        Destroy(dragObject);
+                        return;
+                    }
                 }
 
             }

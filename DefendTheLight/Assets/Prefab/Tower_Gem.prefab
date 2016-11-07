@@ -59,7 +59,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d10a152034ff9d44baa23ef7a3980eba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ward: 10
+  ward: 99
   heath: 10
   range: 5
   projectile: {fileID: 197872, guid: fccdddbb2c4f032479f769c153c1a31b, type: 2}

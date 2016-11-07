@@ -17,9 +17,13 @@ public class DragControl : MonoBehaviour
             sr.sprite = value;
         }
     }
-   // public Sprite sprite; // Sprite to display on drag
+    // public Sprite sprite; // Sprite to display on drag
     [HideInInspector]
-    public GameObject obj; // the object to create on release
+    public TowerButton buttonRef;
+    [HideInInspector]
+    public AbilityBtn abilityRef;
+    //[HideInInspector]
+    //public GameObject obj; // the object to create on release
     [HideInInspector]
     public int cost;        // cost to use
     [HideInInspector]

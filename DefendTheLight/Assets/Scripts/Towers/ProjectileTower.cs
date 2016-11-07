@@ -14,12 +14,17 @@ public class ProjectileTower : Tower {
 	// Use this for initialization
 	void Start ()
     {
-	
+	    
 	}
 
     // Update is called once per frame
     void Update()
     {
+        if (projectile == null)
+        {
+            projectile = Game.control.projectilePref; // having a weird issue where prefab is disappearing. Temp solution
+        }
+
         hpCheck();
 
         // No target, search for a target

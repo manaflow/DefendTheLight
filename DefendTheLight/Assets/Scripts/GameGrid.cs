@@ -5,8 +5,8 @@ using System.Collections.Generic;
 public class GameGrid : MonoBehaviour
 {
     GameObject[,] objectGrid;
-    int cols = 25;
-    int rows = 13;
+    int cols = 32;
+    int rows = 14;
     Node goal = null;
 
     public GameGrid()
@@ -44,17 +44,18 @@ public class GameGrid : MonoBehaviour
         {
             Node node = minQue[0];
             minQue.RemoveAt(0);
-            Node up = Search(node.row - 1, node.col, node.cost, ref node.path, 1, ref objectGrid, ref pathGrid);
+
             Node right = Search(node.row, node.col + 1, node.cost, ref node.path, 2, ref objectGrid, ref pathGrid);
-            Node down = Search(node.row + 1, node.col, node.cost, ref node.path, 3, ref objectGrid, ref pathGrid);
-            Node left = Search(node.row, node.col - 1, node.cost, ref node.path, 4, ref objectGrid, ref pathGrid);
+            //Node up = Search(node.row - 1, node.col, node.cost, ref node.path, 1, ref objectGrid, ref pathGrid);            
+            //Node down = Search(node.row + 1, node.col, node.cost, ref node.path, 3, ref objectGrid, ref pathGrid);
+            //Node left = Search(node.row, node.col - 1, node.cost, ref node.path, 4, ref objectGrid, ref pathGrid);
 
             if (goal != null && node == goal) break;
 
-            if (up != null) AddNode(ref up, ref minQue);
+           // if (up != null) AddNode(ref up, ref minQue);
             if (right != null) AddNode(ref right, ref minQue);
-            if (down != null) AddNode(ref down, ref minQue);
-            if (left != null) AddNode(ref left, ref minQue);
+           // if (down != null) AddNode(ref down, ref minQue);
+           // if (left != null) AddNode(ref left, ref minQue);
         }
 
         if (goal != null) return goal.path;
@@ -76,7 +77,7 @@ public class GameGrid : MonoBehaviour
         cost += 1;
 
         // Is Goal
-        if (i == 6 && j == 12)
+        if ( j == 31)
         {
             Node g = pathGrid[i, j];
             if (g != null && g.cost <= cost) return null;

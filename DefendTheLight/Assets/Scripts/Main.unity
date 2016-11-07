@@ -194,16 +194,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3eeada7e67fc25f41b79ce80653b8a8d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemyPref: {fileID: 191784, guid: 480856691e101bc4ea75e37749af3647, type: 2}
-  enemyPrefs:
-  - {fileID: 196812, guid: ae15f568c3f550e479de16b393cbe5fa, type: 2}
-  - {fileID: 177788, guid: 01b0278c1c906d34cbe8ab317d9f226a, type: 2}
-  - {fileID: 122950, guid: eb310498b9d44e149850d76a918d853b, type: 2}
   selectPref: {fileID: 129040, guid: 387aff65e7cbed848a7a2a2988965447, type: 2}
   dragPref: {fileID: 173110, guid: 9dc1473ab488ed54382e416b8c21c510, type: 2}
+  waveObjPref: {fileID: 138340, guid: 08c79adcddba308448e1a0b5086b5b2a, type: 2}
+  projectilePref: {fileID: 197872, guid: fccdddbb2c4f032479f769c153c1a31b, type: 2}
   moneyText: {fileID: 153784080}
   UI_TowerMenu: {fileID: 0}
   rangeSprite: {fileID: 21300000, guid: b6cec99f75476a24cb63784e74986d30, type: 3}
+  seed: 0
+  waveControl: {fileID: 0}
   gridMask:
     serializedVersion: 2
     m_Bits: 256

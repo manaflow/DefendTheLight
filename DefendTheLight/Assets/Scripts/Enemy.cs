@@ -21,18 +21,26 @@ public class Enemy : MonoBehaviour
     float curDistance = 0; // distance traveled so far to next tile
     Vector2 movementVector = Vector2.zero;
 
-
-    // Use this for initialization
-    void Start ()
+    public void Init(int tileY, int wave)
     {
-        transform.position = new Vector3(0.32f, 4.8f, -2);
+        // tiles are 60pixels high
+        i = tileY;
+        // modifiy hp
+        health = health * ((wave / 10) + 1);
+        transform.position = new Vector3(0.3f, i * 0.6f + 0.3f, -2);
         path = Game.grid.GetPath(i, j);
         string str = "";
-        for(int x = 0; x < path.Count; x++)
+        for (int x = 0; x < path.Count; x++)
         {
             str += path[x] + ", ";
         }
         GetNextTile();
+    }
+
+    // Use this for initialization
+    void Start ()
+    {
+        
 	}
 	
 	// Update is called once per frame
@@ -44,22 +52,22 @@ public class Enemy : MonoBehaviour
         {
 
             slowDuration -= Time.deltaTime;
-            newDistance = speed * 0.64f * slowAmount * Time.deltaTime * Game.GameSpeed;
+            newDistance = speed * 0.6f * slowAmount * Time.deltaTime * Game.GameSpeed;
         }
         else
         {
             slowAmount = 0;
-            newDistance = speed * 0.64f * Time.deltaTime * Game.GameSpeed;
+            newDistance = speed * 0.6f * Time.deltaTime * Game.GameSpeed;
         }
         
 
-        if(curDistance + newDistance > 0.64f)
+        if(curDistance + newDistance > 0.6f)
         {
-            Move(0.64f - curDistance); // move to 1.
+            Move(0.6f - curDistance); // move to 1.
             GetNextTile();          // get new tile and direction
             curDistance += newDistance;
-            Move(curDistance - 0.64f);  // move remaining distance in new direction
-            curDistance -= 0.64f;
+            Move(curDistance - 0.6f);  // move remaining distance in new direction
+            curDistance -= 0.6f;
         }
         else
         {
