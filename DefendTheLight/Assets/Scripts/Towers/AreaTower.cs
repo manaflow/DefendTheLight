@@ -12,6 +12,8 @@ public class AreaTower : Tower
 
     public float speed = 0.5f; // how often applied. Probably leave this alone if not damage.
     float sTimer = 0;
+
+
 	// Use this for initialization
 	void Start () {
 	

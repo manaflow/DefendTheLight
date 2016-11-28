@@ -22,8 +22,12 @@ public class ProjectileTower : Tower {
     {
         if (projectile == null)
         {
+            Debug.Log("Lost");
             projectile = Game.control.projectilePref; // having a weird issue where prefab is disappearing. Temp solution
+            
         }
+
+        
 
         hpCheck();
 

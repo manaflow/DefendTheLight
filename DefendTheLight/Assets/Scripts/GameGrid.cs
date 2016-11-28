@@ -1,17 +1,45 @@
 ﻿using UnityEngine;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
 public class GameGrid : MonoBehaviour
 {
     GameObject[,] objectGrid;
+    int[,] costGrid; // cost from each node to goal
     int cols = 32;
     int rows = 14;
     Node goal = null;
+    int targetRow = 6;
 
     public GameGrid()
     {
         objectGrid = new GameObject[rows, cols];
+        for(int i = 0; i < rows; i++)
+        {
+            // Last col unusable
+            if(i != targetRow) { GameObject blank = new GameObject(); blank.tag = "Wall"; objectGrid[i, cols - 1] = blank; }
+        }
+        costGrid = new int[rows, cols];
+        UpdateCostGrid();
+
+        
+
+    }
+    public void GetPosition(GameObject obj, ref int row, ref int col)
+    {
+        for(int i = 0; i < rows; i++)
+        {
+            for(int j = 0; j < cols; j++)
+            {
+                if (objectGrid[i, j] == obj)
+                {
+                    row = i;
+                    col = j;
+                    return;
+                }
+            }
+        }
     }
 
     public GameObject CheckGrid(int i, int j)
@@ -30,84 +58,154 @@ public class GameGrid : MonoBehaviour
 
     #region Pathfinding
 
-    public List<int> GetPath(int i, int j)
+    public void UpdateCostGrid()
     {
-        goal = null;
+        // Any time a tower is created or destoryed, update the cost grid.
+        // Set all nodes to -1.
+        for (int i = 0; i < rows; i++)
+            for (int j = 0; j < cols; j++)
+            {
+                // Last col not usable except for goal
+                if(j == cols - 1 && i != targetRow)
+                {
+                    costGrid[i, j] = 999;
+                }
+                else
+                {
+                    costGrid[i, j] = -1;
+                }
+            }
+        
 
-        Node[,] pathGrid = new Node[rows, cols]; // an array of nodes. contains the total cost and shortest path so far
+        // Set first node to 1. First node is the one directly adj to the goal
+        SetNode(1, targetRow, cols - 1); // This function will call itself and fill in the entire grid
+        Debug.Log("Set");
 
-        Node first = new Node(i, j, 0, null);
-        List<Node> minQue = new List<Node>();
-        minQue.Add(first);
-
-        while(minQue.Count > 0)
+        for (int i = 0; i < rows; i++)
         {
-            Node node = minQue[0];
-            minQue.RemoveAt(0);
+            string s = "";
+            for (int j = 0; j < cols; j++)
+            {
+                s += costGrid[i, j] + ", ";
+            }
+            Debug.Log(i + ": " + s);
+        }
+    }
 
-            Node right = Search(node.row, node.col + 1, node.cost, ref node.path, 2, ref objectGrid, ref pathGrid);
-            //Node up = Search(node.row - 1, node.col, node.cost, ref node.path, 1, ref objectGrid, ref pathGrid);            
-            //Node down = Search(node.row + 1, node.col, node.cost, ref node.path, 3, ref objectGrid, ref pathGrid);
-            //Node left = Search(node.row, node.col - 1, node.cost, ref node.path, 4, ref objectGrid, ref pathGrid);
+    void SetNode(int cost, int i, int j)
+    {
+        // Sets current node, then branches out to all adj nodes, up,down,left,right
+        // First check if the node is in boundary
+        if (i < 0 || i >= rows || j < 0 || j >= cols ) return;
 
-            if (goal != null && node == goal) break;
 
-           // if (up != null) AddNode(ref up, ref minQue);
-            if (right != null) AddNode(ref right, ref minQue);
-           // if (down != null) AddNode(ref down, ref minQue);
-           // if (left != null) AddNode(ref left, ref minQue);
+
+        if (objectGrid[i, j] == null)
+        {
+            // Replace if current cost is greater, or unset (-1)
+            if (costGrid[i, j] > cost || costGrid[i, j] < 0)
+                costGrid[i, j] = cost;
+            else return; // already visited this node, dont go to adj nodes.
+        }
+        else
+        {
+            if (costGrid[i, j] < 0) // if its not set yet
+            {
+                if (objectGrid[i, j].tag == "Wall") { costGrid[i, j] = 99; cost = 99; }
+                else { costGrid[i, j] = 50; cost = 50; }// regular towers have a cost greater than 1. 
+            }
+            else return; // already visited this node, dont go to adj nodes.
         }
 
-        if (goal != null) return goal.path;
+        cost++; // increase cost by 1
+        SetNode(cost, i + 1, j);
+        SetNode(cost, i - 1, j);
+        SetNode(cost, i, j + 1);
+        SetNode(cost, i, j - 1);
+
+    }
+
+    public int GetNextPath(Facing facing, int i, int j, ref Tower target)
+    {
+        // First check if the node is in boundary
+        if (i < 0 || i >= rows || j < 0 || j >= cols) return 0;
+
+        int cost = 999;
+        bool blocked = false; // whether a tower is in way
+        // Check 3 directions (exclude going back) move to min cost node
+        // sides cost +1 more, this priorities going forward. 
+        int dir = -1;
+
+        if (i == targetRow && j == cols - 1) return -1;
+
+        if(facing == Facing.Up)
+        {
+            // Forward
+            int min = CheckCost(cost, i + 1, j);
+            if (min < cost) { cost = min; dir = (int)Facing.Up; }
+            // Sides
+            min = 1 + CheckCost(cost + 1, i, j + 1);
+            if (min < cost) { cost = min; dir = (int)Facing.Right; }
+            min = 1 + CheckCost(cost + 1, i, j - 1);
+            if (min < cost) { cost = min; dir = (int)Facing.Left; }
+        }
+        else if (facing == Facing.Down)
+        {
+            // Forward
+            int min = CheckCost(cost, i - 1, j);
+            if (min < cost) { cost = min; dir = (int)Facing.Down; }
+            // Sides
+            min = 1 + CheckCost(cost + 1, i, j + 1);
+            if (min < cost) { cost = min; dir = (int)Facing.Right; }
+            min = 1 + CheckCost(cost + 1, i, j - 1);
+            if (min < cost) { cost = min; dir = (int)Facing.Left; }
+        }
+        else if (facing == Facing.Left)
+        {
+            // Forward
+            int min = CheckCost(cost, i, j - 1);
+            if (min < cost) { cost = min; dir = (int)Facing.Left; }
+            // Sides
+            min = 1 + CheckCost(cost + 1, i + 1, j);
+            if (min < cost) { cost = min; dir = (int)Facing.Up; }
+            min = 1 + CheckCost(cost + 1, i - 1, j);
+            if (min < cost) { cost = min; dir = (int)Facing.Down; }
+        }
+        else if (facing == Facing.Right)
+        {
+            // Forward
+            int min = CheckCost(cost, i, j + 1);
+            if (min < cost) { cost = min; dir = (int)Facing.Right;}
+            // Sides
+            min =  1 + CheckCost(cost + 1, i + 1, j);
+            if (min < cost) { cost = min; dir = (int)Facing.Up; }
+            min = 1 + CheckCost(cost + 1, i - 1, j);
+            if (min < cost) { cost = min; dir = (int)Facing.Down; }
+        }
+
+        // Check if next node has a tower, if so send singal to attack
+        if (dir == (int)Facing.Up) target = CheckBlock(i + 1, j);
+        else if (dir == (int)Facing.Down) target = CheckBlock(i - 1, j);
+        else if (dir == (int)Facing.Left) target = CheckBlock(i, j - 1);
+        else if (dir == (int)Facing.Right) target = CheckBlock(i, j + 1);
+        if (target != null) return 5;
+
+        return dir; // return code to enemy
+    }
+
+    // Checks cost within bounds
+    int CheckCost(int cost, int i, int j)
+    {
+        // First check if the node is in boundary
+        if (i < 0 || i >= rows || j < 0 || j >= cols) return 999;
+        else return costGrid[i, j];
+    }
+    Tower CheckBlock(int i, int j)
+    {
+        if (i < 0 || i >= rows || j < 0 || j >= cols) return null;
+        if (objectGrid[i, j] != null) return objectGrid[i, j].GetComponent<Tower>();
         return null;
     }
-
-    // Adds the node to the min Queue in order of its cost
-    void AddNode(ref Node node, ref List<Node> minQue)
-    {
-        for (int i = 0; i < minQue.Count; i++)
-        {
-            if (node.cost < minQue[i].cost) { minQue.Insert(i, node); return; }
-        }
-        minQue.Add(node);
-    }
-
-    Node Search(int i, int j, int cost, ref List<int> path, int dir, ref GameObject[,] grid, ref Node[,] pathGrid)
-    {
-        cost += 1;
-
-        // Is Goal
-        if ( j == 31)
-        {
-            Node g = pathGrid[i, j];
-            if (g != null && g.cost <= cost) return null;
-            goal = new Node(i, j, cost, path);
-            goal.path.Add(dir);
-            pathGrid[i, j] = goal;
-            return null;
-        }
-        // Check bounds
-        if (i < 0 || i >= rows || j < 0 || j >= cols) return null;
-        // Is obstacle 
-        if (grid[i, j] != null)
-        {
-            Debug.Log(grid[i, j]);
-            Tower tower = grid[i, j].GetComponent<Tower>();
-            Debug.Log(tower);
-            if (tower != null) cost += tower.ward;
-
-        }
-
-        Node node = pathGrid[i, j];
-        // Only replace if higher
-        if (node != null && node.cost <= cost) return null;
-        if (node == null) node = new Node(i, j, cost, path);
-        node.path.Add(dir);
-        pathGrid[i, j] = node;
-        return node;
-
-
-    }
-
     #endregion
+
 }

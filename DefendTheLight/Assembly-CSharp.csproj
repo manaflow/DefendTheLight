@@ -46,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\AbilityBtn.cs" />
+     <Compile Include="Assets\ChargeOverlay.cs" />
      <Compile Include="Assets\Scripts\Ability.cs" />
      <Compile Include="Assets\Scripts\AbilityRed.cs" />
      <Compile Include="Assets\Scripts\DragControl.cs" />
@@ -54,15 +55,23 @@
      <Compile Include="Assets\Scripts\Game.cs" />
      <Compile Include="Assets\Scripts\GameControl.cs" />
      <Compile Include="Assets\Scripts\GameGrid.cs" />
+     <Compile Include="Assets\Scripts\Line.cs" />
      <Compile Include="Assets\Scripts\Node.cs" />
      <Compile Include="Assets\Scripts\Projectile.cs" />
      <Compile Include="Assets\Scripts\SFX_Destroy.cs" />
      <Compile Include="Assets\Scripts\TowerButton.cs" />
      <Compile Include="Assets\Scripts\Towers\AreaTower.cs" />
+     <Compile Include="Assets\Scripts\Towers\BlueTower.cs" />
      <Compile Include="Assets\Scripts\Towers\DefenseTower.cs" />
+     <Compile Include="Assets\Scripts\Towers\Fireball.cs" />
+     <Compile Include="Assets\Scripts\Towers\GreenTower.cs" />
      <Compile Include="Assets\Scripts\Towers\OldTower.cs" />
+     <Compile Include="Assets\Scripts\Towers\OrangeTower.cs" />
      <Compile Include="Assets\Scripts\Towers\ProjectileTower.cs" />
+     <Compile Include="Assets\Scripts\Towers\PurpleTower.cs" />
+     <Compile Include="Assets\Scripts\Towers\RedTower.cs" />
      <Compile Include="Assets\Scripts\Towers\Tower.cs" />
+     <Compile Include="Assets\Scripts\Towers\YellowTower.cs" />
      <Compile Include="Assets\Scripts\WaveControl.cs" />
      <Compile Include="Assets\SpeedBtn.cs" />
  <Reference Include="UnityEngine.UI">

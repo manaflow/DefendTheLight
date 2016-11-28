@@ -25,6 +25,10 @@ public class WaveControl : MonoBehaviour
         {
             spawnTime = 0.25f;
         }
+
+        Enemy newEnemy = GameObject.Instantiate(enemyPrefs[1].GetComponent<Enemy>());
+        Game.enemies.Add(newEnemy);
+        newEnemy.Init(1, Game.wave);
     }
 	
 	// Update is called once per frame

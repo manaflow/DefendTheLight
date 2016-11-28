@@ -7,6 +7,9 @@ TagManager:
   - UI
   - Pause
   - Speed
+  - Wall
+  - Charge
+  - Sell
   layers:
   - Default
   - TransparentFX
@@ -17,7 +20,7 @@ TagManager:
   - 
   - 
   - Board
-  - 
+  - Enemy
   - 
   - 
   - 

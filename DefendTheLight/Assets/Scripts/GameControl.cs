@@ -10,11 +10,28 @@ public class GameControl : MonoBehaviour
     public GameObject dragPref;
     public GameObject waveObjPref;
     public GameObject projectilePref;
-    public Text moneyText;
+
+    // Selection
+    public Text chargeText;
+    public Image chargeImage;
+    public Image towerSelect;
+    public Image towerCharge;
+    public Image towerSell;
+
+    bool selected = false;
+    Tower selectedTower = null;
+
     public Image UI_TowerMenu;
     public Sprite rangeSprite;
     public int seed = 0;
     bool start = false;
+
+    public int chargeMax = 30;  // 30 kills
+
+    public Text healthUI;
+    public Text gameoverUI;
+
+    public GameObject targeting;
 
     [HideInInspector]
     public WaveControl waveControl; 
@@ -41,26 +58,34 @@ public class GameControl : MonoBehaviour
         Game.control = this;
         gameGrid = new GameGrid();
         Game.grid = gameGrid;
-        Game.enemies = new List<Enemy>();
-
-        // Start with menu offscreen
-       // UI_TowerMenu.rectTransform.position = new Vector3(-Screen.width / 2, Screen.height / 2, 0);
-        
-    }
-
-    void OnGUI()
-    {
-        //if(dragObject != null)
-        //GUI.DrawTexture(new Rect(Input.mousePosition.x, Screen.height - Input.mousePosition.y, 64, 64), dragSprite.texture);
-
-        //Debug.Log(Input.mousePosition);
+        Game.enemies = new List<Enemy>();        
     }
 	
 	// Update is called once per frame
 	void Update ()
     {
-        
-        moneyText.text = "$" + Game.money;
+        healthUI.text = "Health: " + Game.Health; 
+        if(Game.Health <= 0)
+        {
+            gameoverUI.enabled = true;
+            Time.timeScale = 0;
+        }
+
+        if (Game.chargeCounter >= chargeMax)
+        {
+            Game.charges++;
+            Game.chargeCounter -= chargeMax;        
+        }
+
+        if (Game.TargetEnemy != null)
+        {
+            targeting.transform.position = Game.TargetEnemy.transform.position + new Vector3(0, 0, -1);
+        }
+        else targeting.transform.position = new Vector3(-100, 0, 0);
+
+
+        chargeImage.fillAmount = ((float)Game.chargeCounter) / chargeMax;
+        chargeText.text = Game.charges.ToString();
       
         // Start Game Press Space
         if(!start && Input.GetKeyDown(KeyCode.Space) && waveControl == null)
@@ -90,71 +115,171 @@ public class GameControl : MonoBehaviour
 
     void HandleClick()
     {
-        // Create a raycast using the mouse position and test against the UI
-        PointerEventData pointer = new PointerEventData(EventSystem.current);
-        pointer.position = Input.mousePosition;
-        List<RaycastResult> raycast = new List<RaycastResult>();
-        EventSystem.current.RaycastAll(pointer, raycast);
+        // Check board selection
+        int x = (int)Input.mousePosition.x / (Screen.width / 32); // 32 cells
+        int y = (int)Input.mousePosition.y / (Screen.height / 18); // 14 cells +2+2 on for top and bottom UI
+        y -= 2; // Board starts 2 cells up.
 
-        if (raycast.Count == 0) return; // found nothing
 
-        // You can click either a UI element, or Tower on the board.
-        // First check if selecting UI element - Towers, Abilities, Pause, Speed, Menu
-        
-        for(int i = 0; i < raycast.Count; i++)
+
+        GameObject obj = Game.grid.CheckGrid(y, x);
+        if (obj != null && selectedTower == null)
         {
-            TowerButton towerBtn = raycast[i].gameObject.GetComponent<TowerButton>();
-            if (towerBtn != null) // Tower UI Element found
+            selectedTower = obj.GetComponent<Tower>();
+            #region Tower
+            if (!selected)
             {
-                if(Game.money >= towerBtn.cost) // make sure u have enough money
-                dragObject = GameObject.Instantiate(dragPref);
-                DragControl dc = dragObject.GetComponent<DragControl>();
-                //dc.obj = towerBtn.Tower;     
-                dc.buttonRef = towerBtn;           
-                dc.sprite = towerBtn.Tower.GetComponent<SpriteRenderer>().sprite;
-                isTower = true;
-                dc.cost = towerBtn.cost;
-                break;
-            }
-            AbilityBtn abilityBtn = raycast[i].gameObject.GetComponent<AbilityBtn>();
-            if(abilityBtn != null)
-            {
-                if(Game.energy >= abilityBtn.cost)
+                float width = Screen.width / 32;
+                float height = Screen.height / 18;
+                selected = true;
+                towerSelect.rectTransform.position = new Vector3((x + 0.5f) * width, (y + 2.5f) * height, 0);
+                // Drawing the Selection UI varies if near the edge. Take care of specific cases
+                // NW corner
+                if (x < 2 && y > 11)
                 {
-                    dragObject = GameObject.Instantiate(dragPref);
-                    DragControl dc = dragObject.GetComponent<DragControl>();
-                    //dc.obj = abilityBtn.abilityPref;
-                    dc.abilityRef = abilityBtn;
-                    dc.sprite = abilityBtn.abilityPref.GetComponent<SpriteRenderer>().sprite;
-                    isTower = false;
-                    dc.cost = abilityBtn.cost;
-                    break;
+                    towerCharge.rectTransform.position = towerSelect.rectTransform.position + new Vector3(45, 0, 0);
+                    towerSell.rectTransform.position = towerSelect.rectTransform.position + new Vector3(0, -45, 0);
                 }
-            }
-            SpeedBtn speedBtn = raycast[i].gameObject.GetComponent<SpeedBtn>();
-            if(speedBtn != null)
-            {
-                speedBtn.Click();
-            }
-            
-            if(raycast[i].gameObject.tag == "Pause")
-            {
-                if (Game.isPaused)
+                // NE corner
+                else if(x > 29 && y > 11)
                 {
-                    Game.isPaused = false;
-                    Game.GameSpeed = Game.Speed;
-                    Time.timeScale = Game.Speed;
+                    towerCharge.rectTransform.position = towerSelect.rectTransform.position + new Vector3(-45, 0, 0);
+                    towerSell.rectTransform.position = towerSelect.rectTransform.position + new Vector3(0, -45, 0);
+                }
+                // SE corner
+                else if (x > 29 && y > 11)
+                {
+                    towerCharge.rectTransform.position = towerSelect.rectTransform.position + new Vector3(0, 45, 0);
+                    towerSell.rectTransform.position = towerSelect.rectTransform.position + new Vector3(-45, 0, 0);
+                }
+                // Top
+                else if (y > 11)
+                {
+                    towerCharge.rectTransform.position = towerSelect.rectTransform.position + new Vector3(45, 0, 0);
+                    towerSell.rectTransform.position = towerSelect.rectTransform.position + new Vector3(0, -45, 0);
+                }
+                else if(x > 29)
+                {
+                    towerCharge.rectTransform.position = towerSelect.rectTransform.position + new Vector3(-45, 0, 0);
+                    towerSell.rectTransform.position = towerSelect.rectTransform.position + new Vector3(0, -45, 0);
                 }
                 else
                 {
-                    Game.isPaused = true;
-                    Time.timeScale = 0;
-                    Game.GameSpeed = 0;
+                    towerCharge.rectTransform.position = towerSelect.rectTransform.position + new Vector3(0, 45, 0);
+                    towerSell.rectTransform.position = towerSelect.rectTransform.position + new Vector3(45, 0, 0);
                 }
             }
+            #endregion
+        }        
+        else // Try looking at UI objects
+        {
+            RaycastHit2D hit = Physics2D.Raycast(new Vector2(Input.mousePosition.x / Screen.width * 19.2f, Input.mousePosition.y / Screen.height * 10.8f - 1.2f), Vector2.right, 0.1f);
+            
+            if (hit.collider != null)
+            {
+                //Game.TargetEnemy = hit.collider.gameObject.GetComponent<Enemy>();
+            }
+            
+                #region UI
 
-        }
-        
+           // Create a raycast using the mouse position and test against the UI
+           PointerEventData pointer = new PointerEventData(EventSystem.current);
+            pointer.position = Input.mousePosition;
+            List<RaycastResult> raycast = new List<RaycastResult>();
+            EventSystem.current.RaycastAll(pointer, raycast);
+
+            if (raycast.Count == 0)
+            {
+                selected = false;
+                towerSelect.rectTransform.position = new Vector3(-100, 0);
+                selectedTower = null;
+                return; // found nothing
+            }
+
+            // You can click either a UI element, or Tower on the board.
+            // First check if selecting UI element - Towers, Abilities, Pause, Speed, Menu
+
+            for (int i = 0; i < raycast.Count; i++)
+            {
+                Debug.Log(raycast[0]);
+
+
+                TowerButton towerBtn = raycast[i].gameObject.GetComponent<TowerButton>();
+                if (towerBtn != null) // Tower UI Element found
+                {
+                    if (Game.charges < towerBtn.cost) return; // make sure u have enough money
+                    dragObject = GameObject.Instantiate(dragPref);
+                    DragControl dc = dragObject.GetComponent<DragControl>();
+                    //dc.obj = towerBtn.Tower;     
+                    dc.buttonRef = towerBtn;
+                    dc.sprite = towerBtn.Tower.GetComponent<SpriteRenderer>().sprite;
+                    isTower = true;
+                    dc.cost = towerBtn.cost;
+                    break;
+                }
+                AbilityBtn abilityBtn = raycast[i].gameObject.GetComponent<AbilityBtn>();
+                if (abilityBtn != null)
+                {
+                    if (Game.energy >= abilityBtn.cost)
+                    {
+                        dragObject = GameObject.Instantiate(dragPref);
+                        DragControl dc = dragObject.GetComponent<DragControl>();
+                        //dc.obj = abilityBtn.abilityPref;
+                        dc.abilityRef = abilityBtn;
+                        dc.sprite = abilityBtn.abilityPref.GetComponent<SpriteRenderer>().sprite;
+                        isTower = false;
+                        dc.cost = abilityBtn.cost;
+                        break;
+                    }
+                }
+                SpeedBtn speedBtn = raycast[i].gameObject.GetComponent<SpeedBtn>();
+                if (speedBtn != null)
+                {
+                    speedBtn.Click();
+                }
+
+                if (raycast[i].gameObject.tag == "Pause")
+                {
+                    if (Game.isPaused)
+                    {
+                        Game.isPaused = false;
+                        Game.GameSpeed = Game.Speed;
+                        Time.timeScale = Game.Speed;
+                    }
+                    else
+                    {
+                        Game.isPaused = true;
+                        Time.timeScale = 0;
+                        Game.GameSpeed = 0;
+                    }
+                }
+
+                if(raycast[i].gameObject.tag == "Charge")
+                {
+                    if(selectedTower != null)
+                    {
+                        if (selectedTower.ChargeTower()) Game.charges--; 
+                    }
+                }
+                else if(raycast[i].gameObject.tag == "Sell")
+                {
+                    if(selectedTower != null)
+                    {
+                        // Destory tower, get half half a charge
+                        selectedTower.SellTower();
+                        Game.chargeCounter += chargeMax / 2;
+                    }
+                }
+            }
+            #endregion
+
+            // Remove tower selection
+            selected = false;
+            towerSelect.rectTransform.position = new Vector3(-100, 0);
+            selectedTower = null;
+        }    
+
+
     }
     void HandleDrag()
     {
@@ -204,8 +329,9 @@ public class GameControl : MonoBehaviour
                             GameObject tower = GameObject.Instantiate(dc.buttonRef.Tower);
                             tower.transform.position = new Vector3(j * 0.6f + 0.3f, i * 0.6f + 0.3f, -1);
                             gameGrid.SetGrid(i, j, tower);
-                            Game.money -= dc.cost;
+                            Game.charges -= dc.cost;
                             Destroy(dragObject);
+                            Game.grid.UpdateCostGrid();
                             return;
                         }
                     }
@@ -228,21 +354,6 @@ public class GameControl : MonoBehaviour
 
         Destroy(dragObject);
 
-    }
-    
-    public void AddTower()
-    {
-
-    }
-    public void AddWall()
-    {
-        
-        Debug.Log("Click");
-
-        GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        cube.transform.position = new Vector3(selectX * 0.64f + 0.32f, selectY * 0.64f + 0.32f + 0.64f, -2);
-        cube.transform.localScale = new Vector3(0.64f, 0.64f, 0.64f);
-        cube.name = "(" + selectX.ToString() + "," + selectY.ToString() + ")";
-        gameGrid.SetGrid(selectY, selectX, cube);
-    }
+    }   
+   
 }
