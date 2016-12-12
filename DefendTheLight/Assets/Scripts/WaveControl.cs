@@ -3,6 +3,7 @@ using System.Collections;
 
 public class WaveControl : MonoBehaviour
 {
+    int count = 0;
     public GameObject[] enemyPrefs;
     float time = 0;
     float spawnTime = 0;
@@ -47,6 +48,13 @@ public class WaveControl : MonoBehaviour
             Enemy newEnemy = GameObject.Instantiate(enemyPrefs[1].GetComponent<Enemy>());
             Game.enemies.Add(newEnemy);
             newEnemy.Init(tileY, Game.wave);
+            count++;
+
+            if(count >= 100)
+            {
+                Game.wave++;
+                count = 0;
+            }
         }
 
     }

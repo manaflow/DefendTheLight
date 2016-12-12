@@ -10,6 +10,15 @@ TagManager:
   - Wall
   - Charge
   - Sell
+  - NewGameBtn
+  - HelpBtn
+  - EasyBtn
+  - NormalBtn
+  - HardBtn
+  - BackBtn
+  - HelpTowerBtn
+  - HelpAbilityBtn
+  - HelpChargeBtn
   layers:
   - Default
   - TransparentFX

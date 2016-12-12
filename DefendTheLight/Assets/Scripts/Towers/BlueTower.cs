@@ -9,6 +9,9 @@ public class BlueTower : Tower
     public float healTime;
     float time;
 
+    SpriteRenderer healObject;
+    SpriteRenderer healBeam;
+
     Tower north, east, south, west;
 
 	// Use this for initialization
@@ -18,6 +21,12 @@ public class BlueTower : Tower
 
         // Get current position on grid
         Game.grid.GetPosition(this.gameObject,ref i,ref j);
+
+        healObject = transform.GetChild(1).GetComponent<SpriteRenderer>();
+        healBeam = transform.GetChild(2).GetComponent<SpriteRenderer>();
+
+        healBeam.enabled = false;
+                healObject.enabled = false;
 	}
 	
 	// Update is called once per frame
@@ -38,6 +47,7 @@ public class BlueTower : Tower
             Tower tower = null; 
             if (north != null)
             {
+                healBeam.transform.localEulerAngles = new Vector3(0, 0, 0); // point beam tower object
                 tower = north;               
             }
             if (east != null)
@@ -57,10 +67,23 @@ public class BlueTower : Tower
             }
 
             // Heal the tower, then reset timer
-            if(tower != null)
+            if(tower != null && tower.CurrentHealth < tower.heath)
             {
+                // Point beam toward object
+                if(tower == east) healBeam.transform.localEulerAngles = new Vector3(0, 0, -90); 
+                else if (tower == west) healBeam.transform.localEulerAngles = new Vector3(0, 0, 90);
+                else if (tower == north) healBeam.transform.localEulerAngles = new Vector3(0, 0, 0);
+                else if (tower == south) healBeam.transform.localEulerAngles = new Vector3(0, 0, 180);
+                healBeam.enabled = true;
+                healObject.enabled = true;
+                healObject.transform.position = new Vector3(tower.transform.position.x, tower.transform.position.y, -5);
                 tower.Heal(healAmount * (1 + chargeLevel));
                 time += healTime;
+            }
+            else
+            {
+                healBeam.enabled = false;
+                healObject.enabled = false;
             }
            
 

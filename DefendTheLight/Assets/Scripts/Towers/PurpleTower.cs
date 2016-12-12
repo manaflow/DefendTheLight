@@ -6,6 +6,9 @@ public class PurpleTower : Tower
     Enemy target;
     GameObject beam;
     SpriteRenderer beamRender;
+    public GameObject lightningPref;
+    GameObject lightningBolt;
+    GameObject boltTarget;
 
     public int damage;
     public float beamSpeed;
@@ -18,6 +21,14 @@ public class PurpleTower : Tower
 
         beam = transform.GetChild(1).gameObject;
         beamRender = beam.GetComponent<SpriteRenderer>();
+
+        // Create instance of lightning bolt
+        lightningBolt = GameObject.Instantiate(lightningPref);
+        // Set source of lightning bolt to the tower
+        lightningBolt.transform.GetChild(0).gameObject.transform.position = transform.position;
+        // Get a reference to the end object for the lightning bolt/
+        boltTarget = lightningBolt.transform.GetChild(1).gameObject;
+        
 	}
     void OnGUI()
     {
@@ -48,15 +59,20 @@ public class PurpleTower : Tower
         if (target == null)
         {
             beamRender.enabled = false;
+            lightningBolt.GetComponent<LineRenderer>().enabled = false;
             GetTarget(ref target);
         }
+        // Check if target is out of range, if so find a new target
         else if(Vector2.Distance(transform.position, target.transform.position) > range)
         {
             beamRender.enabled = false;
+            lightningBolt.GetComponent<LineRenderer>().enabled = false;
             GetTarget(ref target);
         }
         else
         {
+            boltTarget.transform.position = target.transform.position;
+            lightningBolt.GetComponent<LineRenderer>().enabled = true;
             beamRender.enabled = true;
             float distance = Vector2.Distance(transform.position, target.transform.position);
             beam.transform.localScale = new Vector3(distance * -25, 1, 1);

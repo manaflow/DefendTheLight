@@ -12,6 +12,14 @@ public static class Game
     public static GameGrid grid;
     public static int Health = 20;
 
+    // Abilities
+    public static int redCount;
+    public static int blueCount;
+    public static int yellowCount;
+    public static int purpleCount;
+    public static int greenCount;
+    public static int orangeCount;
+
     public static Enemy TargetEnemy = null;
     public static int GameSpeed = 1;    // actual speed, pause makes this 0
     public static int Speed = 1;        // UI speed

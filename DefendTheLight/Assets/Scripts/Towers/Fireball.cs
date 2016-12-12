@@ -10,16 +10,33 @@ public class Fireball : MonoBehaviour
     public float speed;
     List<GameObject> hitList; // which enemies have been hit already, no repeat damage.
 
+    public float trailTime;
+    float time;
+    public GameObject flameTrailPref;
+    LineRenderer flameTrail;
+
+    Enemy target;
+    bool hitTarget = false; // change direction to ensure it hits the target
     float boxX;
     float boxY;
 
-    public void Init(Enemy target, float multipler)
+    public void Init(Enemy Target, float multipler)
     {
         // Take a target location and set movement vector.
+        target = Target;
+        UpdateDirection();
+        damage = (int)(damage * multipler);
+
+        // Push positions onto the trail
+        time = trailTime;
+    }
+
+    void UpdateDirection()
+    {
         direction = new Vector2(target.transform.position.x - transform.position.x, target.transform.position.y - transform.position.y);
         direction.Normalize();
-        damage = (int)(damage * multipler);
     }
+
 	// Use this for initialization
 	void Start ()
     {
@@ -32,11 +49,26 @@ public class Fireball : MonoBehaviour
 	// Update is called once per frame
 	void Update ()
     {
+        if (time <= 0)
+        {
+            GameObject newTrail = GameObject.Instantiate(flameTrailPref);
+            newTrail.transform.position = transform.position;
+            time = trailTime;
+        }
+        else time -= Time.deltaTime;
+
         // Check if out of bounds, if yes destory
         if(Game.OutOfBounds(transform.position))
         {
             Destroy(this.gameObject);
         }
+
+        if (target == null) hitTarget = true;
+        if(!hitTarget)
+        {
+            UpdateDirection();
+        }
+
 
         // Move
         Vector3 myTransform = transform.position;
@@ -63,7 +95,8 @@ public class Fireball : MonoBehaviour
             }
             hitList.Add(hit.collider.gameObject);
             hit.collider.gameObject.GetComponent<Enemy>().TakeDamage(damage);
-            Debug.Log("Hit");
+            if (!hitTarget || target != null)
+                if (hit.collider.gameObject == target.gameObject) hitTarget = true;
             return;
         }
         // vert
@@ -77,6 +110,8 @@ public class Fireball : MonoBehaviour
             }
             hitList.Add(hit.collider.gameObject);
             hit.collider.gameObject.GetComponent<Enemy>().TakeDamage(damage);
+            if(!hitTarget || target != null)
+            if (hit.collider.gameObject == target.gameObject) hitTarget = true;
             return;
         }
     }

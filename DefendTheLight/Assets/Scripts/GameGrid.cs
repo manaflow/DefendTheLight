@@ -12,13 +12,32 @@ public class GameGrid : MonoBehaviour
     Node goal = null;
     int targetRow = 6;
 
+    public List<Tower> GetAllTowers()
+    {
+        List<Tower> newList = new List<Tower>();
+        for (int i = 0; i < rows; i++)
+        {
+            for (int j = 0; j < cols; j++)
+            {
+                if (objectGrid[i, j] != null)
+                {
+                    Tower t = objectGrid[i, j].GetComponent<Tower>();
+                    if (t != null) newList.Add(t);
+                }
+            }
+        }
+        return newList;
+    }
+
     public GameGrid()
     {
+        GameObject endWall = new GameObject();
+        endWall.name = "End Wall";
         objectGrid = new GameObject[rows, cols];
         for(int i = 0; i < rows; i++)
         {
             // Last col unusable
-            if(i != targetRow) { GameObject blank = new GameObject(); blank.tag = "Wall"; objectGrid[i, cols - 1] = blank; }
+            if(i != targetRow) { GameObject blank = new GameObject(); blank.tag = "Wall"; objectGrid[i, cols - 1] = blank; blank.transform.parent = endWall.transform; }
         }
         costGrid = new int[rows, cols];
         UpdateCostGrid();

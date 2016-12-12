@@ -6,10 +6,20 @@ using UnityEngine.EventSystems;
 
 public class GameControl : MonoBehaviour
 {
+    public GameObject lightObj;
     public GameObject selectPref;
     public GameObject dragPref;
     public GameObject waveObjPref;
     public GameObject projectilePref;
+    public GameObject instructionPref;  
+
+    // Counters for abilities
+    public Text redCounter;
+    public Text blueCounter;
+    public Text yellowCounter;
+    public Text purpleCounter;
+    public Text orangeCounter;
+    public Text greenCounter;
 
     // Selection
     public Text chargeText;
@@ -58,12 +68,23 @@ public class GameControl : MonoBehaviour
         Game.control = this;
         gameGrid = new GameGrid();
         Game.grid = gameGrid;
-        Game.enemies = new List<Enemy>();        
+        Game.enemies = new List<Enemy>();
+
+        Game.charges = 10;
+        if (Game.difficulty == Difficulty.Easy) chargeMax = 20; 
+        else if (Game.difficulty == Difficulty.Hard) chargeMax = 40;  
     }
 	
 	// Update is called once per frame
 	void Update ()
     {
+        redCounter.text = Game.redCount.ToString();
+        blueCounter.text = Game.blueCount.ToString();
+        yellowCounter.text = Game.yellowCount.ToString();
+        purpleCounter.text = Game.purpleCount.ToString();
+        greenCounter.text = Game.greenCount.ToString();
+        orangeCounter.text = Game.orangeCount.ToString();
+
         healthUI.text = "Health: " + Game.Health; 
         if(Game.Health <= 0)
         {
@@ -85,16 +106,8 @@ public class GameControl : MonoBehaviour
 
 
         chargeImage.fillAmount = ((float)Game.chargeCounter) / chargeMax;
-        chargeText.text = Game.charges.ToString();
-      
-        // Start Game Press Space
-        if(!start && Input.GetKeyDown(KeyCode.Space) && waveControl == null)
-        {
-            GameObject waveObj = GameObject.Instantiate(waveObjPref);
-            waveControl = waveObj.GetComponent<WaveControl>();
-            waveControl.Init();     
-            start = true;
-        }      
+        chargeText.text = Game.charges.ToString();     
+           
      
         // 3 Types of behavior. Clicking, Dragging, Release Drag
 
@@ -115,6 +128,18 @@ public class GameControl : MonoBehaviour
 
     void HandleClick()
     {
+        // Clicking anywhere will remove instructions
+        if (instructionPref != null) Destroy(instructionPref);
+
+        // Start Game 
+        if (!start && waveControl == null)
+        {
+            GameObject waveObj = GameObject.Instantiate(waveObjPref);
+            waveControl = waveObj.GetComponent<WaveControl>();
+            waveControl.Init();
+            start = true;
+        }
+
         // Check board selection
         int x = (int)Input.mousePosition.x / (Screen.width / 32); // 32 cells
         int y = (int)Input.mousePosition.y / (Screen.height / 18); // 14 cells +2+2 on for top and bottom UI
@@ -220,15 +245,38 @@ public class GameControl : MonoBehaviour
                 AbilityBtn abilityBtn = raycast[i].gameObject.GetComponent<AbilityBtn>();
                 if (abilityBtn != null)
                 {
-                    if (Game.energy >= abilityBtn.cost)
+                    if (Game.charges > 0)
                     {
-                        dragObject = GameObject.Instantiate(dragPref);
-                        DragControl dc = dragObject.GetComponent<DragControl>();
-                        //dc.obj = abilityBtn.abilityPref;
-                        dc.abilityRef = abilityBtn;
-                        dc.sprite = abilityBtn.abilityPref.GetComponent<SpriteRenderer>().sprite;
-                        isTower = false;
-                        dc.cost = abilityBtn.cost;
+                        if(abilityBtn.abilityType == AbilityType.Red && Game.redCount > 0)
+                        {
+                            lightObj.GetComponent<LightObject>().StartRed();
+                            Game.redCount--;
+                        }
+                        else if (abilityBtn.abilityType == AbilityType.Blue && Game.blueCount > 0)
+                        {
+                            lightObj.GetComponent<LightObject>().StartBlue();
+                            Game.blueCount--;
+                        }
+                        else if (abilityBtn.abilityType == AbilityType.Yellow && Game.yellowCount > 0)
+                        {
+                            lightObj.GetComponent<LightObject>().StartYellow();
+                            Game.yellowCount--;
+                        }
+                        else if (abilityBtn.abilityType == AbilityType.Purple && Game.purpleCount > 0)
+                        {
+                            lightObj.GetComponent<LightObject>().StartPurple();
+                            Game.purpleCount--;
+                        }
+                        else if (abilityBtn.abilityType == AbilityType.Orange && Game.orangeCount > 0)
+                        {
+                            lightObj.GetComponent<LightObject>().StartOrange();
+                            Game.orangeCount--;
+                        }
+                        else if (abilityBtn.abilityType == AbilityType.Green && Game.greenCount > 0)
+                        {
+                            lightObj.GetComponent<LightObject>().StartGreen();
+                            Game.greenCount--;
+                        }
                         break;
                     }
                 }
@@ -336,19 +384,6 @@ public class GameControl : MonoBehaviour
                         }
                     }
                 }
-                else
-                {
-                    DragControl dc = dragObject.GetComponent<DragControl>();
-                    if (dc.abilityRef != null)
-                    {
-                        GameObject abilityObject = GameObject.Instantiate(dc.abilityRef.abilityPref);
-                        abilityObject.transform.position = new Vector3(j * 0.6f + 0.3f, i * 0.6f + 0.3f, -3);
-                        Game.energy -= dc.cost;
-                        Destroy(dragObject);
-                        return;
-                    }
-                }
-
             }
         }
 

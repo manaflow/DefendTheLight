@@ -129,7 +129,7 @@ MonoBehaviour:
   enemyMask:
     serializedVersion: 2
     m_Bits: 512
-  effect: {fileID: 114442, guid: a238e24a9d299a24a847bd3a979f3182, type: 2}
+  effect: {fileID: 150072, guid: 91c8243e2e5c5b24db252a6ea00f8b6f, type: 2}
   speed: 2
   damage: 25
 --- !u!212 &21204352

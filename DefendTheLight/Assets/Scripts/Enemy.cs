@@ -30,7 +30,10 @@ public class Enemy : MonoBehaviour
         // tiles are 60pixels high
         i = tileY;
         // modifiy hp
-        health = health * ((wave / 10) + 1);
+        if (Game.difficulty == Difficulty.Easy) health = (int)(health * 0.75 * ((wave / 10) + 1));
+        else if (Game.difficulty == Difficulty.Normal) health = health * ((wave / 10) + 1);
+        else health = (int)(health * 1.5 * ((wave / 10) + 1));
+
         transform.position = new Vector3(0.3f, i * 0.6f + 0.3f, -2);
               
         GetNextTile();

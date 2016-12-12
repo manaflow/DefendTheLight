@@ -58,7 +58,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 162212}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -23.434055, y: -20.229807, z: -2}
+  m_LocalPosition: {x: -2.4587507, y: 1.7470375, z: -2}
   m_LocalScale: {x: 2, y: 2, z: 1}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children:
@@ -125,6 +125,7 @@ MonoBehaviour:
   heath: 10
   cHealth: 0
   range: 20
+  lightningPref: {fileID: 106988, guid: 15dec7b07032b2f4aa6f855bfbe120f7, type: 2}
   damage: 1
   beamSpeed: 0.1
 --- !u!114 &11440020

@@ -28,6 +28,8 @@ public abstract class Tower : MonoBehaviour
         cHealth = heath;
         color = c;
         overlay = transform.GetChild(0).GetComponent<ChargeOverlay>();
+        // Add depth based on y position
+        transform.position = transform.position + new Vector3(0, 0, -2 + transform.position.y * 0.01f);
     }
 
     protected void TowerUpdate()
@@ -81,6 +83,7 @@ public abstract class Tower : MonoBehaviour
     
     protected bool inRange(Enemy target)
     {
+        if (target == null) return false;
         if (Vector2.Distance(new Vector2(transform.position.x, transform.position.y), new Vector2(target.transform.position.x, target.transform.position.y))
                         <= range * 0.64f + 0.32f) return true;
         return false;
@@ -99,6 +102,16 @@ public abstract class Tower : MonoBehaviour
         overlay.SetCharge(color, chargeLevel);
         if (chargeLevel == 1) chargeTime = 30;
         else chargeTime += 5;
+
+        if(chargeLevel == 3)
+        {
+            if (this is RedTower) Game.redCount = Mathf.Clamp(Game.redCount + 1, 0, 3);
+            else if (this is BlueTower) Game.blueCount = Mathf.Clamp(Game.blueCount + 1, 0, 3);
+            else if (this is YellowTower) Game.yellowCount = Mathf.Clamp(Game.yellowCount + 1, 0, 3);
+            else if (this is PurpleTower) Game.purpleCount = Mathf.Clamp(Game.purpleCount + 1, 0, 3);
+            else if (this is OrangeTower) Game.orangeCount = Mathf.Clamp(Game.orangeCount + 1, 0, 3);
+            else if (this is GreenTower) Game.greenCount = Mathf.Clamp(Game.greenCount + 1, 0, 3);
+        }
 
         return true;
     }

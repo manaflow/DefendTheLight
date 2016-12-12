@@ -3,6 +3,6 @@ using System.Collections;
 
 public class AbilityBtn : MonoBehaviour
 {
-    public GameObject abilityPref;
+    public AbilityType abilityType;
     public int cost;
 }
